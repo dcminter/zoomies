@@ -16,7 +16,7 @@ The GUI tool will allow the appropriate zoom level to be selected with a slider 
 
 ## TODO
 
-  * See if there's a simpler way to pass around the state to make it available in the closure.
+  * ~~See if there's a simpler way to pass around the state to make it available in the closure.~~ I *think* passing the Cell around is a sane way to have the value be both mutable and available to the closure.
   * ~~Add visual feedback of the zoom level~~
   * Fix wonkiness on the slider control range
   * Better handling of the device(s) and ranges for the camera

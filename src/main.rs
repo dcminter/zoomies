@@ -1,6 +1,5 @@
 use std::cell::Cell;
 use std::process::Command;
-use std::rc::Rc;
 
 use gtk::{Adjustment, Application, ApplicationWindow, Scrollbar};
 use gtk::prelude::*;
@@ -10,8 +9,7 @@ static ZOOM_MAX: f64 = 500.0;
 static ZOOM_CLICK: f64 = 10.0; // Minimum change before we re-issue the svl2-ctl command to change Zoom level
 
 fn main() {
-
-    let state = Rc::new(Cell::new(100.0));
+    let state = Cell::new(100.0);
 
     let application = Application::builder()
         .application_id("com.paperstack.Zoomies")
@@ -51,7 +49,7 @@ fn main() {
     application.run();
 }
 
-fn adjusted(value: f64, state: &Rc<Cell<f64>>) {
+fn adjusted(value: f64, state: &Cell<f64>) {
     if f64::abs(state.get() - value) > ZOOM_CLICK {
         if value >= ZOOM_MIN && value <= ZOOM_MAX {
             state.replace(value);
