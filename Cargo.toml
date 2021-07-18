@@ -4,7 +4,6 @@ version = "0.1.0"
 authors = ["Dave Minter <dave@paperstack.com>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 gtk = "0.14.0"
+v4l = "0.12.1"
