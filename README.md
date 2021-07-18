@@ -17,7 +17,7 @@ The GUI tool will allow the appropriate zoom level to be selected with a slider 
 ## TODO
 
   * See if there's a simpler way to pass around the state to make it available in the closure.
-  * Add visual feedback of the zoom level
+  * ~~Add visual feedback of the zoom level~~
   * Fix wonkiness on the slider control range
   * Better handling of the device(s) and ranges for the camera
   * Better error handling for the v4l command (e.g. what if it's not installed!)

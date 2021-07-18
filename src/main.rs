@@ -1,14 +1,13 @@
 use std::cell::Cell;
+use std::process::Command;
 use std::rc::Rc;
 
 use gtk::{Adjustment, Application, ApplicationWindow, Scrollbar};
 use gtk::prelude::*;
 
-use std::process::Command;
-
 static ZOOM_MIN: f64 = 100.0;
 static ZOOM_MAX: f64 = 500.0;
-static ZOOM_CLICK: f64 = 10.0;
+static ZOOM_CLICK: f64 = 10.0; // Minimum change before we re-issue the svl2-ctl command to change Zoom level
 
 fn main() {
 
@@ -26,31 +25,39 @@ fn main() {
             .default_height(70)
             .build();
 
-        // Add the slider!
+        // HBox to lay out the slider and output
+        let hbox = gtk::Box::new(gtk::Orientation::Horizontal, 2);
+
+        // Slider: Note that the adjustment values aren't honoured by the slider in the way I expected. Need to figure out what I'm doing wrong here.
         let adjustment = Adjustment::new(ZOOM_MIN, ZOOM_MIN, ZOOM_MAX, 1.0, 1.0, 50.0);
         let scrollbar = Scrollbar::new(gtk::Orientation::Horizontal, Option::from(&adjustment));
+        hbox.pack_start(&scrollbar, true, true, 0);
+
+        // Display the current zoom level
+        let label = gtk::Label::new(Some((ZOOM_MIN as i64).to_string().as_str()));
+        hbox.pack_start(&label, false, false, 2);
 
         let state_copy = state.clone();
         scrollbar.connect_change_value(move |_, _, value| {
-            adjusted(value, &state_copy)
+            adjusted(value, &state_copy);
+            label.set_text((state_copy.get() as i64).to_string().as_str());
+            Inhibit(false)
         });
-        window.add(&scrollbar);
 
+        window.add(&hbox);
         window.show_all();
     });
 
     application.run();
 }
 
-fn adjusted(value: f64, state: &Rc<Cell<f64>>) -> Inhibit {
+fn adjusted(value: f64, state: &Rc<Cell<f64>>) {
     if f64::abs(state.get() - value) > ZOOM_CLICK {
         if value >= ZOOM_MIN && value <= ZOOM_MAX {
             state.replace(value);
             zoom(state.get());
         }
     }
-
-    Inhibit(false)
 }
 
 fn zoom(value: f64) {
