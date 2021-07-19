@@ -18,7 +18,7 @@ The GUI tool will allow the appropriate zoom level to be selected with a slider 
 
   * ~~See if there's a simpler way to pass around the state to make it available in the closure.~~ I *think* passing the Cell around is a sane way to have the value be both mutable and available to the closure.
   * ~~Add visual feedback of the zoom level~~
-  * Fix wonkiness on the slider control range
+  * ~~Fix wonkiness on the slider control range~~ Much less wonky now! Using `connect_local` seems to be the trick! 
   * Better handling of the device(s) and ranges for the camera
   * Better error handling for the v4l command (e.g. what if it's not installed!)
   * ~~Display the current zoom level~~ (Added)
