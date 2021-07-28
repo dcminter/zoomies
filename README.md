@@ -22,6 +22,7 @@ error: failed to run custom build command for `v4l-sys v0.2.0`
 ## TODO
 
   * Read current zoom level so we can initialise the slider to that!
+  * Do error handling properly
   * ~~See if there's a simpler way to pass around the state to make it available in the closure.~~ I *think* passing the Cell around is a sane way to have the value be both mutable and available to the closure.
   * ~~Add visual feedback of the zoom level~~
   * ~~Fix wonkiness on the slider control range~~ Much less wonky now! Using `connect_local` seems to be the trick! 
