@@ -25,7 +25,7 @@ error: failed to run custom build command for `v4l-sys v0.2.0`
   * ~~See if there's a simpler way to pass around the state to make it available in the closure.~~ I *think* passing the Cell around is a sane way to have the value be both mutable and available to the closure.
   * ~~Add visual feedback of the zoom level~~
   * ~~Fix wonkiness on the slider control range~~ Much less wonky now! Using `connect_local` seems to be the trick! 
-  * ~~Better handling of the ~~device(s) and ranges for the camera~~ (Uses v4l directly now)
+  * ~~Better handling of the device(s) and ranges for the camera~~ (Uses v4l directly now)
   * ~~Better error handling for the v4l command (e.g. what if it's not installed!)~~ N/A
   * ~~Display the current zoom level~~ (Added)
   * ~~Use v4l2 API more directly so there's no need to invoke the v4l2-ctl binary (see [v4l2-ctl implementation](https://github.com/gjasny/v4l-utils/tree/master/utils/v4l2-ctl) and e.g. [rust v4l crate](https://docs.rs/v4l/0.12.1/v4l/))~~ In progress on this branch!
