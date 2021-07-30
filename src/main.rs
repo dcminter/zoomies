@@ -16,9 +16,10 @@ static BRIO_ZOOM_CONTROL_NAME: &str = "Zoom, Absolute";
 static ZOOM_CLICK: f64 = 10.0; // Minimum change before we re-issue the svl2-ctl command to change Zoom level
 
 fn main() {
-    let (zoom_min, zoom_max) = establish_range();
+    let (zoom_current, zoom_min, zoom_max) = establish_range_and_current_value();
+    eprintln!("Current value: {:?}", zoom_current);
 
-    let state = Cell::new(100.0);
+    let state = Cell::new(zoom_current);
 
     let application = Application::builder()
         .application_id("com.paperstack.Zoomies")
@@ -38,10 +39,11 @@ fn main() {
         // Slider: Note that the adjustment values aren't honoured by the slider in the way I expected. Need to figure out what I'm doing wrong here.
         let adjustment = Adjustment::new(zoom_min, zoom_min, zoom_max, ZOOM_CLICK, 0.0, 0.0);
         let scrollbar = Scrollbar::new(gtk::Orientation::Horizontal, Option::from(&adjustment));
+        scrollbar.set_value(zoom_current);
         hbox.pack_start(&scrollbar, true, true, 0);
 
         // Display the current zoom level
-        let label = gtk::Label::new(Some((zoom_min as i64).to_string().as_str()));
+        let label = gtk::Label::new(Some((zoom_current as i64).to_string().as_str()));
         hbox.pack_start(&label, false, false, 2);
 
         let state_copy = state.clone();
@@ -143,7 +145,7 @@ fn correct_device_name(entry: &DirEntry) -> bool {
     output == "Logitech BRIO"
 }
 
-fn establish_range() -> (f64, f64) {
+fn establish_range_and_current_value() -> (f64, f64, f64) {
     let dev = brio_device().unwrap();
     let controls = dev.query_controls().unwrap();
 
@@ -154,12 +156,22 @@ fn establish_range() -> (f64, f64) {
     match &zoom_controls[..] {
         [control_description] => {
             eprintln!("Control: {:?} has range {:?} to {:?}", control_description.name, control_description.minimum, control_description.maximum);
-            (control_description.minimum as f64, control_description.maximum as f64)
+
+            let current = match dev.control(control_description.id).unwrap() {
+                v4l::Control::Value(value) => {
+                    value
+                },
+                _ => {
+                    control_description.minimum
+                }
+            };
+
+            (current as f64, control_description.minimum as f64, control_description.maximum as f64)
         }
         _ => {
             // TODO: Return an error here instead
             eprintln!("No zoom control found on the device");
-            (100.0, 500.0)
+            (100.0, 100.0, 500.0)
         }
     }
 }
