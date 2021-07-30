@@ -2,13 +2,15 @@
 
 Super simple Rust/Gtk GUI to control the Zoom level on my Logitech BRIO camera.
 
+![Zoomies in use](docs/gui.png?raw=true "The (ugly) BRIO Zoomies user interface in action")
+
 This can be done from the command line (during use of the camera by another app) with something like the following video4linux command:
 
 ```bash
 v4l2-ctl -d /dev/video2 --set-ctrl=zoom_absolute=150
 ```
 
-The GUI tool will allow the appropriate zoom level to be selected with a scrollbar (range. etc. to be hardcoded at least initially).
+The GUI tool will allow the appropriate zoom level to be selected with a scrollbar.
 
 Clang must be installed (on Ubuntu, `apt install clang`) so that the Rust V4L library dependency can compile. Failure to do so will result in the following error message:
 ```
@@ -21,8 +23,10 @@ error: failed to run custom build command for `v4l-sys v0.2.0`
 
 ## TODO
 
-  * ~~Read current zoom level so we can initialise the slider to that!~~
   * Do error handling properly
+  * Make it prettier (how does Gtk's CSS stuff work‽)
+  * Allow for keyboard editing of the zoom level
+  * ~~Read current zoom level so we can initialise the slider to that!~~
   * ~~See if there's a simpler way to pass around the state to make it available in the closure.~~ I *think* passing the Cell around is a sane way to have the value be both mutable and available to the closure.
   * ~~Add visual feedback of the zoom level~~
   * ~~Fix wonkiness on the slider control range~~ Much less wonky now! Using `connect_local` seems to be the trick! 
