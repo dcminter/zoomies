@@ -26,3 +26,4 @@ error: failed to run custom build command for `v4l-sys v0.2.0`
   * Do error handling properly
   * Make it prettier (how does Gtk's CSS stuff work‽)
   * Allow for keyboard editing of the zoom level
+  * Cut a release
