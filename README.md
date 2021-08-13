@@ -23,7 +23,8 @@ error: failed to run custom build command for `v4l-sys v0.2.0`
 
 ## TODO
 
-  * Do error handling properly
+  * Cut a release
+  * Make error handling nicer - all errors are treated as std::io::Error at the moment!
   * Make it prettier (how does Gtk's CSS stuff work‽)
   * Allow for keyboard editing of the zoom level
-  * Cut a release
+  * Allow for multiple cameras
