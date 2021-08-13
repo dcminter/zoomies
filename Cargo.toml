@@ -1,6 +1,6 @@
 [package]
 name = "zoomies"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Dave Minter <dave@paperstack.com>"]
 edition = "2018"
 
