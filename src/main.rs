@@ -164,7 +164,7 @@ fn correct_device_name(entry: &DirEntry) -> bool {
     let mut path = entry.path();
     path.push("name");
     let output = read_to_string(path).unwrap().trim().to_string();
-    output == "Logitech BRIO"
+    output == "Logitech BRIO" || output == "BRIO 4K Stream Edition"
 }
 
 fn establish_range_and_current_value() -> Result<(f64, f64, f64), Error> {
