@@ -1,13 +1,14 @@
 use std::cell::Cell;
 use std::collections::HashMap;
 use std::ffi::OsString;
-use std::fs::{DirEntry, read_to_string};
+use std::fs::{read_to_string, DirEntry};
 use std::io::{Error, ErrorKind};
 use std::path::{Path, PathBuf};
 
-use gtk::{Adjustment, Application, ApplicationWindow, Scrollbar};
 use gtk::prelude::*;
-use v4l::control::Description;
+use gtk::{Adjustment, Application, ApplicationWindow, Scrollbar};
+use v4l::control;
+use v4l::control::{Description, Value};
 use v4l::prelude::*;
 
 static GTK_VALUE_CHANGED_SIGNAL: &str = "value-changed";
@@ -38,8 +39,10 @@ fn main() {
                 let hbox = gtk::Box::new(gtk::Orientation::Horizontal, 2);
 
                 // Slider: Note that the adjustment values aren't honoured by the slider in the way I expected. Need to figure out what I'm doing wrong here.
-                let adjustment = Adjustment::new(zoom_min, zoom_min, zoom_max, ZOOM_CLICK, 0.0, 0.0);
-                let scrollbar = Scrollbar::new(gtk::Orientation::Horizontal, Option::from(&adjustment));
+                let adjustment =
+                    Adjustment::new(zoom_min, zoom_min, zoom_max, ZOOM_CLICK, 0.0, 0.0);
+                let scrollbar =
+                    Scrollbar::new(gtk::Orientation::Horizontal, Option::from(&adjustment));
                 scrollbar.set_value(zoom_current);
                 hbox.pack_start(&scrollbar, true, true, 0);
 
@@ -92,17 +95,21 @@ fn moved_enough(zoom_min: f64, zoom_max: f64, value: f64, state: &Cell<f64>) -> 
 }
 
 fn zoom(value: i32) -> Result<(), Error> {
-    let dev = brio_device()?;
-    let controls = dev.query_controls()?;
-    let identifiers: Vec<u32> = controls.into_iter()
+    let dev: Device = brio_device()?;
+    let controls: Vec<Description> = dev.query_controls()?;
+
+    let identifiers: Vec<u32> = controls
+        .into_iter()
         .filter(|c| c.name == BRIO_ZOOM_CONTROL_NAME)
         .map(|c| c.id)
         .collect();
 
     match identifiers[..] {
         [id] => {
-            // Note - set_control doesn't currently accept any control type except Value!
-            let _ = dev.set_control(id, v4l::Control::Value(value));
+            let _ = dev.set_control(control::Control {
+                id,
+                value: Value::Integer(value as i64),
+            });
             Ok(())
         }
         _ => {
@@ -117,7 +124,8 @@ fn brio_device() -> Result<Device, Error> {
     // in /sys/class/video4linux/*/uevent where DEVNAME is specified, but
     // I expect this will mostly be ok using the path name:
     let paths = std::fs::read_dir(Path::new(V4L_SYS_DEVICE_PATH))?;
-    let brio_devices: Result<HashMap<i32, OsString>, Error> = paths.into_iter()
+    let brio_devices: Result<HashMap<i32, OsString>, Error> = paths
+        .into_iter()
         .filter_map(|p| p.ok())
         .filter(correct_device_name)
         .map(to_device_entry)
@@ -133,9 +141,7 @@ fn brio_device() -> Result<Device, Error> {
 
             Device::with_path(device_path)
         }
-        None => {
-            Err(Error::from(ErrorKind::NotFound))
-        }
+        None => Err(Error::from(ErrorKind::NotFound)),
     }
 }
 
@@ -151,12 +157,8 @@ fn read_device_index(entry: &DirEntry) -> Result<i32, Error> {
     let output = read_to_string(path)?.trim().to_string();
     let parsed_output = output.parse::<i32>();
     match parsed_output {
-        Ok(value) => {
-            Ok(value)
-        }
-        Err(_) => {
-            Err(Error::from(ErrorKind::InvalidInput))
-        }
+        Ok(value) => Ok(value),
+        Err(_) => Err(Error::from(ErrorKind::InvalidInput)),
     }
 }
 
@@ -171,27 +173,30 @@ fn establish_range_and_current_value() -> Result<(f64, f64, f64), Error> {
     let dev = brio_device()?;
     let controls = dev.query_controls()?;
 
-    let zoom_controls: Vec<Description> = controls.into_iter()
+    let zoom_controls: Vec<Description> = controls
+        .into_iter()
         .filter(|c| c.name == BRIO_ZOOM_CONTROL_NAME)
         .collect();
 
     match &zoom_controls[..] {
         [control_description] => {
-            eprintln!("Control: {:?} has range {:?} to {:?}", control_description.name, control_description.minimum, control_description.maximum);
+            eprintln!(
+                "Control: {:?} has range {:?} to {:?}",
+                control_description.name, control_description.minimum, control_description.maximum
+            );
 
-            let current = match dev.control(control_description.id)? {
-                v4l::Control::Value(value) => {
-                    value
-                }
-                _ => {
-                    control_description.minimum
-                }
+            let control::Control { id: _, value } = dev.control(control_description.id)?;
+            let current = match value {
+                Value::Integer(value) => value,
+                _ => control_description.minimum,
             };
 
-            Ok((current as f64, control_description.minimum as f64, control_description.maximum as f64))
+            Ok((
+                current as f64,
+                control_description.minimum as f64,
+                control_description.maximum as f64,
+            ))
         }
-        _ => {
-            Err(Error::from(ErrorKind::NotFound))
-        }
+        _ => Err(Error::from(ErrorKind::NotFound)),
     }
 }
