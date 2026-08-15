@@ -13,7 +13,7 @@ use v4l::prelude::*;
 
 static GTK_VALUE_CHANGED_SIGNAL: &str = "value-changed";
 static V4L_SYS_DEVICE_PATH: &str = "/sys/class/video4linux";
-static BRIO_ZOOM_CONTROL_NAME: &str = "Zoom, Absolute";
+static ZOOM_CONTROL_NAME: &str = "Zoom, Absolute";
 static ZOOM_CLICK: f64 = 10.0; // Minimum change before we re-issue the svl2-ctl command to change Zoom level
 
 fn main() {
@@ -30,7 +30,7 @@ fn main() {
             application.connect_activate(move |app| {
                 let window = ApplicationWindow::builder()
                     .application(app)
-                    .title("BRIO Zoomies")
+                    .title("Zoomies")
                     .default_width(350)
                     .default_height(70)
                     .build();
@@ -100,7 +100,7 @@ fn zoom(value: i32) -> Result<(), Error> {
 
     let identifiers: Vec<u32> = controls
         .into_iter()
-        .filter(|c| c.name == BRIO_ZOOM_CONTROL_NAME)
+        .filter(|c| c.name == ZOOM_CONTROL_NAME)
         .map(|c| c.id)
         .collect();
 
@@ -131,7 +131,7 @@ fn brio_device() -> Result<Device, Error> {
         .map(to_device_entry)
         .collect();
 
-    // Everything gathered should be a "Logitech BRIO" device
+    // Everything gathered should have a compatible name
     // TODO: Allow for multiple devices (will require GUI work to support multi-cameras)
     match brio_devices?.get(&0) {
         Some(device) => {
@@ -166,7 +166,7 @@ fn correct_device_name(entry: &DirEntry) -> bool {
     let mut path = entry.path();
     path.push("name");
     let output = read_to_string(path).unwrap().trim().to_string();
-    output == "Logitech BRIO" || output == "BRIO 4K Stream Edition"
+    output == "Logitech BRIO" || output == "BRIO 4K Stream Edition" || output == "Razer Kiyo Pro Ultra"
 }
 
 fn establish_range_and_current_value() -> Result<(f64, f64, f64), Error> {
@@ -175,7 +175,7 @@ fn establish_range_and_current_value() -> Result<(f64, f64, f64), Error> {
 
     let zoom_controls: Vec<Description> = controls
         .into_iter()
-        .filter(|c| c.name == BRIO_ZOOM_CONTROL_NAME)
+        .filter(|c| c.name == ZOOM_CONTROL_NAME)
         .collect();
 
     match &zoom_controls[..] {

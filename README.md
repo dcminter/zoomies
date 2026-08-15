@@ -1,8 +1,8 @@
 # Zoomies
 
-Super simple Rust/Gtk GUI to control the Zoom level on my Logitech BRIO camera.
+Super simple Rust/Gtk GUI to control the Zoom level on my ~~Logitech BRIO camera~~ Razer Kiyo Pro Ultra.
 
-![Zoomies in use](docs/gui.png?raw=true "The (ugly) BRIO Zoomies user interface in action")
+![Zoomies in use](docs/gui.png?raw=true "The (ugly) Zoomies user interface in action")
 
 This can be done from the command line (during use of the camera by another app) with something like the following video4linux command:
 
@@ -20,6 +20,7 @@ error: failed to run custom build command for `v4l-sys v0.2.0`
 ## Notes
 
   * On Ubuntu the video4linux `v4l2-ctl` command comes from the `v4l-utils` package.
+  * I changed camera, but the new one works pretty much exactly the same!
 
 ## TODO
 
